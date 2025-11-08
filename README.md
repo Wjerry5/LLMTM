@@ -3,7 +3,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![AAAI 2025](https://img.shields.io/badge/AAAI-2025-red.svg)](https://aaai.org/conference/aaai/aaai-25/)
+[![AAAI 2026](https://img.shields.io/badge/AAAI-2026-red.svg)](https://aaai.org/conference/aaai/aaai-26/)
 
 Official PyTorch implementation of **"LLMTM: Benchmarking and Optimizing LLMs for Temporal Motif Analysis in Dynamic Graphs"** accepted at AAAI 2026.
 
