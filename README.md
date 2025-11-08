@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![AAAI 2025](https://img.shields.io/badge/AAAI-2025-red.svg)](https://aaai.org/conference/aaai/aaai-25/)
 
-Official PyTorch implementation of **"LLMTM: Benchmarking and Optimizing LLMs for Temporal Motif Analysis in Dynamic Graphs"** accepted at AAAI 2025.
+Official PyTorch implementation of **"LLMTM: Benchmarking and Optimizing LLMs for Temporal Motif Analysis in Dynamic Graphs"** accepted at AAAI 2026.
 
 > **Note**: This repository contains code and resources for reproducing the results presented in our paper.
 
