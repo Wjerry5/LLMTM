@@ -60,24 +60,29 @@ export CUDA_VISIBLE_DEVICES="0,1,2,3"  # optional
 ### Dataset
 We included our dataset in the log.
 
-### Deploy openPangu-Embedded-7B-DeepDiver
-# Clone and install
+## Deploy openPangu-Embedded-7B-DeepDiver
+## Clone and install
+```
 git clone https://gitcode.com/ascend-tribe openPangu-Embedded-7B-DeepDiver.git
 cd deepdiver_v2
 pip install -r requirements.txt
-
-# Install CANN manually (For the Docker method, please refer to https://ai.gitcode.com/ascend-tribe/openPangu-Embedded-7B-DeepDiver/blob/main/README_EN.md)
-# Create a virtual environment
+```
+### Install CANN manually 
+(For the Docker method, please refer to https://ai.gitcode.com/ascend-tribe/openPangu-Embedded-7B-DeepDiver/blob/main/README_EN.md)
+## Create a virtual environment
+```
 python -m venv vllm-ascend-env
 source vllm-ascend-env/bin/activate
-
-# Install required python packages.
+```
+## Install required python packages.
+```
 pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple attrs 'numpy<2.0.0' decorator sympy cffi pyyaml pathlib2 psutil protobuf scipy requests absl-py wheel typing_extensions
-
-# Download 8.2.rc1 CANN package manually
+```
+### Download 8.2.rc1 CANN package manually
 Refer to https://support.huawei.com/enterprisesearch/#/index?keyword=CANN&lang=zh&searchType=SUPE_SW&sortType=Relevance&outside=0&hasChangeLang=true download Ascend-cann-toolkit_8.2.RC1_linux, Ascend-cann-kernels-910b_8.2.RC1_linux, Ascend-cann-nnal_8.2.RC1_linux
 
-# Install the CANN package
+## Install the CANN package
+```
 chmod +x ./Ascend-cann-toolkit_8.2.RC1_linux-"$(uname -i)".run
 ./Ascend-cann-toolkit_8.2.RC1_linux-"$(uname -i)".run --full
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
@@ -86,32 +91,38 @@ chmod +x ./Ascend-cann-kernels-910b_8.2.RC1_linux-"$(uname -i)".run
 chmod +x ./Ascend-cann-nnal_8.2.RC1_linux-"$(uname -i)".run
 ./Ascend-cann-nnal_8.2.RC1_linux-"$(uname -i)".run --install
 source /usr/local/Ascend/nnal/atb/set_env.sh
-
-# Config pip mirror
+```
+## Config pip mirror
+```
 pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 pip config set global.extra-index-url "https://download.pytorch.org/whl/cpu/ https://mirrors.huaweicloud.com/ascend/repos/pypi"
+```
 
-
-# Install vLLM
+## Install vLLM
+```
 git clone --depth 1 --branch v0.9.2 https://github.com/vllm-project/vllm
 cd vllm
 VLLM_TARGET_DEVICE=empty pip install -v -e .
 cd ..
-
-# Install vLLM Ascend
+```
+## Install vLLM Ascend
+```
 git clone  --depth 1 --branch v0.9.2 https://github.com/vllm-project/vllm-ascend.git
 cd vllm-ascend
 pip install -v -e .
 cd ..
-
-# Copy Pangu's Modeling Files
+```
+## Copy Pangu's Modeling Files
 open_pangu.py and __init__.py can be found at http://ai.gitcode.com/ascend-tribe/openpangu-embedded-7b-model/tree/main/inference/vllm_ascend/models
+```
 cp ./vllm_ascend/open_pangu.py /vllm-workspace/vllm-ascend/vllm_ascend/models/
 cp ./vllm_ascend/__init__.py /vllm-workspace/vllm-ascend/vllm_ascend/models/
-# Run
+```
+## Run
+```
 bash /home/ma-user/work/LLMDyG_Motif/start_vllm.sh
-
-Done!
+```
+### Done!
 
 ## File Organization
 
