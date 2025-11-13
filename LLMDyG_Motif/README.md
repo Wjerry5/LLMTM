@@ -25,9 +25,9 @@ To address this trade-off, we propose a simple yet effective structure-aware dis
 ## Benchmark
 
 We implement and evaluate four prompting techniques (including zero/one-shot and zero/one-shot Chain-of-Thought) across nine LLMs, encompassing closed-source models like o3, Deepseek-R1, and GPT-4o-mini, as well as open-source models such as openPangu-Embedded-7B-DeepDiver, DeepSeek-R1-Distill-Qwen-7B, DeepSeek-R1-Distill-Qwen-14B, DeepSeek-R1-Distill-Qwen-32B, Qwen2.5-32B, and QwQ-32B. We have open-sourced our code for all ten tasks, which are grouped into three levels: Level 0 (Fundamental Dynamic Graph Understanding), Level 1 (Single-Temporal Motif Recognition), and Level 2 (Multi-Temporal Motif Identification).
-![](images/tasks.png)
+![](images/Tasks_and_Motifs.png)
 
-To run the benchmark code, set `--api 1`. The code also supports running models locally; to do so, modify the model path in the LLMTM/runner.py file.
+To run the benchmark code, set `--api 1`. The code also supports running models locally; to do so, modify the model path in the LLMDyG_Motif/runner.py file.
 
 ## Tool-Augmented LLM Agent
 
@@ -119,7 +119,7 @@ The files in this repo are organized as follows:
 
 ```text
 .
-├── LLMTM/
+├── LLMDyG_Motif/
 │   ├── runner.py                 # End-to-end pipeline (gen/run/check/eval/show)
 │   ├── API/
 │   │   └── api.py                # OpenAI-compatible API wrapper and logging
@@ -158,7 +158,7 @@ The files in this repo are organized as follows:
 
 ## Quick Start
 
-We provide scripts in the LLMTM/scripts/example folder. To run them, please set your openai.base_url and openai.key.
+We provide scripts in the LLMDyG_Motif/scripts/example folder. To run them, please set your openai.base_url and openai.key.
 
 ### 1. Data Generation
 ```bash
@@ -175,7 +175,7 @@ python scripts/example/run_one_task.py --task judge_is_motif --T 5 --N 3 --p 3 -
 python scripts/example/run_one_task.py --task judge_is_motif --T 5 --N 3 --p 3 --motif 1 --motif_name triangle --k 0 --api 1 --model gpt-4o-mini --key ×××× --num_seed 20 -t eval
 ```
 
-You can modify the data generation parameters (--T, --N, --p) and the task name (e.g., --task judge_contain_motif) to generate data and run other tasks. The run commands for all tasks are provided in the script LLMTM/scripts/example/all_tasks.sh.
+You can modify the data generation parameters (--T, --N, --p) and the task name (e.g., --task judge_contain_motif) to generate data and run other tasks. The run commands for all tasks are provided in the script LLMDyG_Motif/scripts/example/all_tasks.sh.
 
 ### 4. Configuration Modes
 
