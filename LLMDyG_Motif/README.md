@@ -61,6 +61,7 @@ export CUDA_VISIBLE_DEVICES="0,1,2,3"  # optional
 We included our dataset in the log.
 
 ## Deploy openPangu-Embedded-7B-DeepDiver
+Ascend: 1 x Ascend SNT9B2 | ARM: 24 cores 192GB
 ## Clone and install
 ```
 git clone https://gitcode.com/ascend-tribe openPangu-Embedded-7B-DeepDiver.git
