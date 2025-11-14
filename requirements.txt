@@ -1,0 +1,47 @@
+# Core Machine Learning Framework
+torch>=2.4.0
+transformers>=4.51.0
+scikit-learn>=1.5.0
+xgboost>=3.0.0
+
+# Data Processing and Analysis
+pandas>=2.2.0
+numpy>=1.26.0
+scipy>=1.14.0
+libwon
+igraph
+
+
+# Graph Theory and Network Analysis
+networkx>=3.4.0
+
+# Large Language Models and API
+openai>=1.93.0
+langchain>=0.3.26
+langchain-core>=0.3.72
+langchain-openai>=0.3.28
+langchain-huggingface>=0.2.0
+sentence-transformers>=4.1.0
+peft>=0.15.0
+safetensors>=0.4.5
+accelerate>=1.4.0
+tiktoken>=0.9.0
+
+# Visualization and Plotting
+matplotlib>=3.10.0
+seaborn>=0.13.0
+
+# Progress Bar and Utilities
+tqdm>=4.67.0
+
+# Type Hints Support
+typing-extensions>=4.12.0
+
+# JSON and Data Serialization
+json5>=0.9.0
+
+# Regular Expressions
+regex>=2024.0.0
+
+# System and OS Utilities
+psutil>=5.9.0
