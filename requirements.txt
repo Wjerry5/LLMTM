@@ -1,0 +1,25 @@
+numpy
+scipy
+scikit-learn
+lightgbm
+optuna
+imbalanced-learn
+networkx
+tqdm
+openai
+langchain
+langchain-openai
+langchain-core
+pydantic
+shortuuid
+requests
+transformers
+torch-npu
+libwon
+igraph
+xgboost
+joblib
+pip install --upgrade pandas --ignore-installed
+pip install "langchain<1.0" "langchain-core<1.0" "langchain-openai<1.0"
+
+

@@ -12,17 +12,17 @@ Official PyTorch implementation of **"LLMTM: Benchmarking and Optimizing LLMs fo
 ## 📋 Table of Contents
 
 - [Abstract](#abstract)
+- [Benchmark](#Benchmark)
 - [Architecture](#architecture)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Dataset](#dataset)
 - [Usage](#usage)
-  - [Training](#training)
+  - [Run](#run)
   - [Evaluation](#evaluation)
-  - [Inference](#inference)
+  - [Modes](#modes)
 - [Project Structure](#project-structure)
 - [Results](#results)
-- [Pre-trained Models](#pre-trained-models)
 - [Citation](#citation)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -30,22 +30,32 @@ Official PyTorch implementation of **"LLMTM: Benchmarking and Optimizing LLMs fo
 
 ## 📝 Abstract
 
-*[Include a brief abstract of your paper here, typically 150-250 words summarizing the problem, approach, and key findings.]*
+The widespread application of Large Language Models (LLMs) has motivated a growing interest in their capacity for processing dynamic graphs. Temporal motifs, as an elementary unit and an important local property of dynamic graphs which can directly reflect anomalies and unique phenomena, are essential for understanding their evolutionary dynamics and structural features. 
 
-Large Language Models (LLMs) have shown remarkable capabilities in various domains, but their application to temporal motif analysis in dynamic graphs remains underexplored. This work introduces LLMTM, a comprehensive benchmark and optimization framework for evaluating and enhancing LLM performance on temporal graph analysis tasks...
+However, leveraging LLMs for temporal motif analysis on dynamic graphs remains relatively unexplored. In this paper, we systematically study LLM performance on temporal motif-related tasks. Specifically, we propose a comprehensive benchmark, LLMTM (Large Language Models in Temporal Motifs), which includes six tailored tasks across nine temporal motif types. 
+
+We then conduct extensive experiments to analyze the impacts of different prompting techniques and LLMs (including nine models such as openPangu-Embedded-7B-DeepDiver, the Qwen series, QwQ-32B, GPT-4o-mini, Deepseek-R1, and o3) on model performance. Informed by our benchmark findings, we develop a tool-augmented LLM agent that leverages precisely engineered prompts to solve these tasks with high accuracy. Nevertheless, the high accuracy of the agent incurs a substantial cost. 
+
+To address this trade-off, we propose a simple yet effective structure-aware dispatcher that considers both the dynamic graph's structural properties and the LLM's cognitive load to intelligently dispatch queries between the standard LLM prompting and the more powerful agent. Our experiments demonstrate that the structure-aware dispatcher effectively maintains high accuracy while reducing cost.
+
+## Benchmark
+
+We implement and evaluate four prompting techniques (including zero/one-shot and zero/one-shot Chain-of-Thought) across nine LLMs, encompassing closed-source models like o3, Deepseek-R1, and GPT-4o-mini, as well as open-source models such as openPangu-Embedded-7B-DeepDiver, DeepSeek-R1-Distill-Qwen-7B, DeepSeek-R1-Distill-Qwen-14B, DeepSeek-R1-Distill-Qwen-32B, Qwen2.5-32B, and QwQ-32B. We have open-sourced our code for all ten tasks, which are grouped into three levels: Level 0 (Fundamental Dynamic Graph Understanding), Level 1 (Single-Temporal Motif Recognition), and Level 2 (Multi-Temporal Motif Identification).
+![Benchmark Diagram](images/Tasks_and_Motifs.png)
+
 
 ## 🏗️ Architecture
 
-*[Include a high-level architecture diagram or description of your model]*
+We train a lightweight XGBoost classifier using a dataset of 1500 instances with varying scales and difficulties across five motif types (e.g., 3-star, 4-cycle), which tools LLMs to form an Agent acting as a ”Structure-Aware Dispatcher”. 
+
+LLMTM framework, first utilizes "Structure-Aware Dispatcher" to extracts the dynamic graph from natural language and then predicts a query’s difficulty and strategically routes it down one of two paths: simple queries are sent to a standard LLM for a low-cost answer, while complex ones are handled by our tool-augmented agent. The agent follows a workflow of task planning, tool selection, tool calling, and response generation to achieve high accuracy, albeit at a greater computational cost.
 
 The LLMTM framework consists of:
-- **Temporal Graph Encoder**: Processes dynamic graph structures
-- **LLM Backbone**: Pre-trained language model adapted for graph understanding
-- **Motif Detection Module**: Identifies temporal patterns in graph sequences
-- **Optimization Layer**: Fine-tuning strategies for improved performance
+- **Temporal Graph Understand**: Structure-Aware Dispatcher
+- **LLM Backbone**:  Standard LLM Prompting
+- **Optimization Layer**: Tool-Augmented Agent
 
-![Architecture Diagram](assets/architecture.png)
-*Architecture overview of LLMTM framework*
+![Architecture Diagram](images/dispatcher.png)
 
 ## 🔧 Requirements
 
@@ -66,6 +76,10 @@ tqdm>=4.65.0
 matplotlib>=3.7.0
 scikit-learn>=1.3.0
 pandas>=2.0.0
+openai>=1.93.0
+langchain>=0.3.26
+langchain-core>=0.3.72
+langchain-openai>=0.3.28
 ```
 
 ## 💿 Installation
@@ -81,7 +95,7 @@ cd LLMTM
 
 ```bash
 # Using conda (recommended)
-conda create -n llmtm python=3.8
+conda create -n llmtm python=3.9
 conda activate llmtm
 
 # Or using venv
@@ -97,227 +111,206 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 # Install other requirements
 pip install -r requirements.txt
-
-# Install PyTorch Geometric (if needed)
-pip install torch-geometric
 ```
 
-### 4. Download pre-trained models (optional)
+### 4. Deploy openPangu-Embedded-7B-DeepDiver (Ascend_NPU)
+```bash
+# Clone and install
+git clone https://gitcode.com/ascend-tribe openPangu-Embedded-7B-DeepDiver.git
+cd deepdiver_v2
+pip install -r requirements.txt
+```
 
 ```bash
-bash scripts/download_pretrained.sh
+# Install CANN manually (For the Docker method, please refer to https://ai.gitcode.com/ascend-tribe/openPangu-Embedded-7B-DeepDiver/blob/main/README_EN.md)
+# Create a virtual environment
+python -m venv vllm-ascend-env
+source vllm-ascend-env/bin/activate
 ```
+
+```bash
+# Install required python packages.
+pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple attrs 'numpy<2.0.0' decorator sympy cffi pyyaml pathlib2 psutil protobuf scipy requests absl-py wheel typing_extensions
+```
+```bash
+# Download 8.2.rc1 CANN package manually
+Refer to https://support.huawei.com/enterprisesearch/#/index?keyword=CANN&lang=zh&searchType=SUPE_SW&sortType=Relevance&outside=0&hasChangeLang=true download Ascend-cann-toolkit_8.2.RC1_linux, Ascend-cann-kernels-910b_8.2.RC1_linux, Ascend-cann-nnal_8.2.RC1_linux
+```
+```bash
+# Install the CANN package
+chmod +x ./Ascend-cann-toolkit_8.2.RC1_linux-"$(uname -i)".run
+./Ascend-cann-toolkit_8.2.RC1_linux-"$(uname -i)".run --full
+source /usr/local/Ascend/ascend-toolkit/set_env.sh
+chmod +x ./Ascend-cann-kernels-910b_8.2.RC1_linux-"$(uname -i)".run
+./Ascend-cann-kernels-910b_8.2.RC1_linux-"$(uname -i)".run --install
+chmod +x ./Ascend-cann-nnal_8.2.RC1_linux-"$(uname -i)".run
+./Ascend-cann-nnal_8.2.RC1_linux-"$(uname -i)".run --install
+source /usr/local/Ascend/nnal/atb/set_env.sh
+```
+```bash
+# Config pip mirror
+pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+pip config set global.extra-index-url "https://download.pytorch.org/whl/cpu/ https://mirrors.huaweicloud.com/ascend/repos/pypi"
+```
+```bash
+# Install vLLM
+git clone --depth 1 --branch v0.9.2 https://github.com/vllm-project/vllm
+cd vllm
+VLLM_TARGET_DEVICE=empty pip install -v -e .
+cd ..
+```
+```bash
+# Install vLLM Ascend
+git clone  --depth 1 --branch v0.9.2 https://github.com/vllm-project/vllm-ascend.git
+cd vllm-ascend
+pip install -v -e .
+cd ..
+```
+```bash
+# Copy Pangu's Modeling Files
+open_pangu.py and __init__.py can be found at http://ai.gitcode.com/ascend-tribe/openpangu-embedded-7b-model/tree/main/inference/vllm_ascend/models
+cp ./vllm_ascend/open_pangu.py /vllm-workspace/vllm-ascend/vllm_ascend/models/
+cp ./vllm_ascend/__init__.py /vllm-workspace/vllm-ascend/vllm_ascend/models/
+```
+```bash
+# Run
+bash /home/ma-user/work/LLMDyG_Motif/start_vllm.sh
+```
+
 
 ## 📊 Dataset
 
 ### Supported Datasets
+We included our dataset in data.zip, and we also support real-world datasets such as Enron.
 
-We provide support for the following temporal graph datasets:
-
-1. **Dynamic Citation Networks**: Academic paper citation networks with temporal evolution
-2. **Social Interaction Graphs**: Time-stamped social network interactions
-3. **Biological Networks**: Temporal protein-protein interaction networks
-4. **Custom Datasets**: Support for user-provided temporal graphs
-
-### Data Preparation
-
+### Data Generation
 ```bash
-# Download and preprocess datasets
-python scripts/prepare_data.py --dataset citation --output data/processed
-
-# Or download pre-processed data
-bash scripts/download_data.sh
+python ../scripts/example/run_one_task.py --task judge_contain_motif --T 5 --N 10 --p 0.3 --motif 1 --motif_name 4-path --use_agent 1 --k 0 --model pangu_auto --num_seed 20 -t gen
 ```
 
 ### Dataset Format
 
-Expected input format for custom datasets:
+```
+log(data)/
+└── task_name/
+    └── T10_N6_P6.0_seed0
+              ├── graph.json # dynamic graph quadruples
+              └── qa.json # question-answer pair
 
 ```
-data/
-├── raw/
-│   ├── edges.csv          # Edge list with timestamps
-│   ├── nodes.csv          # Node features (optional)
-│   └── labels.csv         # Ground truth labels
-└── processed/
-    ├── train.pt
-    ├── val.pt
-    └── test.pt
-```
 
-Example `edges.csv`:
-```csv
-source,target,timestamp,edge_type
-0,1,1609459200,citation
-1,2,1609545600,citation
+Example `graph.json`:
+```
+[source,target,timestamp,edge_type]
+[1, 3, 0, "a"]
+[4, 5, 2, "a"]
 ```
 
 ## 🚀 Usage
 
-### Training
-
-Train the model from scratch:
-
+### Run
 ```bash
-# Basic training
-python train.py --config configs/base.yaml
-
-# Training with custom parameters
-python train.py \
-    --dataset citation \
-    --model llmtm \
-    --epochs 100 \
-    --batch_size 32 \
-    --lr 0.001 \
-    --gpu 0
+python ../scripts/example/run_one_task.py --task judge_contain_motif --T 5 --N 10 --p 0.3 --motif 1 --motif_name 4-path --use_agent 1 --k 0 --model pangu_auto --num_seed 20 -t run
 ```
-
-### Configuration Files
-
-Modify `configs/base.yaml` to adjust hyperparameters:
-
-```yaml
-model:
-  name: llmtm
-  hidden_dim: 256
-  num_layers: 4
-  dropout: 0.1
-  
-training:
-  epochs: 100
-  batch_size: 32
-  learning_rate: 0.001
-  weight_decay: 0.0001
-  
-dataset:
-  name: citation
-  split_ratio: [0.7, 0.15, 0.15]
-```
+You can modify the data generation parameters (--T, --N, --P) and the task name (e.g., --task judge_contain_motif) to generate data and run other tasks. The run commands for all tasks are provided in the script LLMTM/scripts/example/*.sh.
 
 ### Evaluation
 
-Evaluate a trained model:
-
 ```bash
-# Evaluate on test set
-python evaluate.py --checkpoint checkpoints/best_model.pth --split test
-
-# Compute metrics
-python evaluate.py \
-    --checkpoint checkpoints/best_model.pth \
-    --dataset citation \
-    --metrics accuracy,f1,precision,recall
+python ../scripts/example/run_one_task.py --task judge_contain_motif --T 5 --N 10 --p 0.3 --motif 1 --motif_name 4-path --use_agent 1 --k 0 --model pangu_auto --num_seed 20 -t eval
 ```
 
-### Inference
+### Modes
 
-Run inference on new data:
+The project supports three main modes controlled by parameters:
 
-```bash
-# Single graph inference
-python inference.py \
-    --checkpoint checkpoints/best_model.pth \
-    --input data/new_graph.pt \
-    --output predictions.json
+- **API Mode** (`--api 1`): Direct API calls to LLM
+- **Agent Mode** (`--use_agent 1`): Tool-Augmented LLM Agent 
+- **Balance Mode** (`--balance 1`): Structure-aware dispatcher using XGBoost
 
-# Batch inference
-python inference.py \
-    --checkpoint checkpoints/best_model.pth \
-    --input_dir data/test_graphs/ \
-    --output_dir results/
-```
 
 ## 📁 Project Structure
 
-```
-LLMTM/
-├── configs/                 # Configuration files
-│   ├── base.yaml
-│   └── experiments/
-├── data/                    # Dataset directory
-│   ├── raw/
-│   └── processed/
-├── models/                  # Model architectures
-│   ├── __init__.py
-│   ├── llmtm.py            # Main model
-│   ├── encoders.py         # Graph encoders
-│   └── decoders.py         # Output layers
-├── utils/                   # Utility functions
-│   ├── data_loader.py
-│   ├── metrics.py
-│   └── visualization.py
-├── scripts/                 # Helper scripts
-│   ├── download_data.sh
-│   ├── download_pretrained.sh
-│   └── prepare_data.py
-├── notebooks/               # Jupyter notebooks
-│   ├── demo.ipynb
-│   └── analysis.ipynb
-├── checkpoints/             # Saved models
-├── results/                 # Experiment results
-├── train.py                 # Training script
-├── evaluate.py              # Evaluation script
-├── inference.py             # Inference script
-├── requirements.txt         # Dependencies
-├── setup.py                 # Package setup
-├── LICENSE
+```text
+.
+├── LLMTM/
+│   ├── runner.py                 # End-to-end pipeline (gen/run/check/eval/show)
+│   ├── API/
+│   │   └── api.py                # OpenAI-compatible API wrapper and logging
+│   ├── Agent/
+│   │   ├── agent_manager.py      # LangChain-based tool-augmented LLM agent
+│   │   └── tools.py              # Temporal Motif tools exposed to the agent
+|   ├── Balance/
+│   │   ├── agent_manager.py      # LangChain-based tool-augmented LLM agent
+│   │   └── tools.py              # Xgboost classifier exposed to the agent
+│   └── utils/
+│       ├── data.py               # Dynamic graph generators (ER, motif-based, etc.)
+│       ├── prompt.py             # Prompt builders for different tasks/modes
+│       ├── visualization.py      # Static snapshots and GIF visualization helpers
+│       ├── xgboost.joblib        # Dispatcher model info (Balance mode)
+│       └── task/                 # Task definitions (Level 0/1/2)
+│           ├── base.py
+│           ├── judge_is_motif.py
+│           ├── judge_contain_motif.py
+│           ├── modify_motif.py
+│           ├── multi_motif_judge.py
+│           ├── when_multi_motif_exist.py
+│           ├── multi_motif_count.py
+│           ├── sort_edge.py
+│           ├── what_edges.py
+│           ├── when_link_and_dislink.py
+│           └── reverse_graph.py
+├── scripts/
+│   └── example/
+│       ├── run_one_task.py       # Single-task entry (gen/run/check/eval/show/clear)
+│       ├── all_tasks.sh          # Ready-to-use examples for multiple tasks
+│       └── config.py             # Arguments and defaults
+├── images/                       # Figures used in README
+│   ├── Tasks_and_Motifs.png
+|   ├── main_result.png
+│   └── dispatcher.png
+├── logs/                         # Generated at runtime (relative path)
+│   └── ...                       # Data, results, and visualizations. 
 └── README.md
 ```
+
 
 ## 📈 Results
 
 ### Main Results
 
-Performance comparison on standard benchmarks:
+Performance comparison of the Structure-Aware Dispatcher against several baselines. ”Random” refers to randomly
+assigning instances, ”Single” refers to training and applying on the same temporal motif. This highlights how our methods consistently achieve the second-best accuracy while being significantly more cost-effective than the top-performing ”Agent”. We held out the ”4-tailedtriangle” and ”triangle” motifs from the training set to specifically evaluate generalization.
 
-| Method | Citation Network | Social Graph | Biological Network | Average |
-|--------|-----------------|--------------|-------------------|---------|
-| Baseline-1 | 72.3 | 68.5 | 71.2 | 70.7 |
-| Baseline-2 | 75.8 | 71.3 | 74.6 | 73.9 |
-| **LLMTM (Ours)** | **82.4** | **79.6** | **81.3** | **81.1** |
+![Main Result](images/main_result.png)
 
-*Table: Temporal motif detection accuracy (%) on three benchmark datasets.*
+### Benchmark Result Example
+Performance comparison on the ’Judge Cotain Motif’ task against the random baseline. 5-run average results are reported.
 
-### Ablation Study
+| Judge Cotain Motif | 3-star | triangle | 4-path | 4-cycle | 4-chordalcycle | 4-tailedtriangle | 4-clique | bitriangle | butterfly |
+|---|---|---|---|---|---|---|---|---|---|
+| openPangu-7B | 25% | 35% | 15% | 20% | 20% | 20% | 35% | 30% | 10% |
+| Qwen-7B | 50% | 20% | 35% | 30% | 15% | 20% | 30% | **5%** | 0% |
+| Qwen-14B | **90%** | 80% | 75% | 30% | 30% | 35% | 25% | 35% | 40% |
+| Qwen-32B | **90%** | 85% | 80% | 45% | 10% | 55% | 40% | 35% | 35% |
+| Qwen2.5-32B | 75% | 70% | 75% | 50% | 55% | 45% | 20% | 45% | 35% |
+| QwQ-32B | 85% | 85% | 70% | 50% | **5%** | 25% | **5%** | 10% | 15% |
+| GPT-4o-mini | 60% | 45% | 45% | 30% | 55% | 30% | 45% | **55%** | 40% |
+| DeepSeek-R1 | **90%** | **95%** | **90%** | **75%** | **65%** | **85%** | **55%** | **55%** | **80%** |
+| o3 | **90%** | **95%** | 80% | 65% | 20% | 55% | 50% | 50% | 55% |
 
-| Component | Citation Network | Social Graph |
-|-----------|-----------------|--------------|
-| Full Model | 82.4 | 79.6 |
-| w/o Temporal Encoding | 78.1 | 75.3 |
-| w/o LLM Backbone | 76.5 | 74.8 |
-| w/o Optimization | 79.8 | 77.2 |
-
-### Visualization
-
-![Results Visualization](assets/results.png)
-*Performance comparison across different methods and datasets*
-
-## 🎯 Pre-trained Models
-
-Pre-trained model checkpoints are available for download:
-
-| Model | Dataset | Accuracy | Download |
-|-------|---------|----------|----------|
-| LLMTM-Base | Citation | 82.4% | [link](https://github.com/Wjerry5/LLMTM/releases) |
-| LLMTM-Large | Multi-domain | 84.7% | [link](https://github.com/Wjerry5/LLMTM/releases) |
-
-```bash
-# Load pre-trained model
-from models import LLMTM
-
-model = LLMTM.from_pretrained('checkpoints/llmtm-base.pth')
-```
+More results can be found in our paper: LLMTM: Benchmarking and Optimizing LLMs for Temporal Motif Analysis in Dynamic Graphs
 
 ## 📖 Citation
 
 If you find this work useful, please cite our paper:
 
 ```bibtex
-@inproceedings{llmtm2025,
+@inproceedings{llmtm2026,
   title={LLMTM: Benchmarking and Optimizing LLMs for Temporal Motif Analysis in Dynamic Graphs},
   author={[Author Names]},
   booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
-  year={2025},
+  year={2026},
   volume={39},
   pages={[page numbers]},
   url={[paper URL]}
@@ -327,9 +320,8 @@ If you find this work useful, please cite our paper:
 ## 🙏 Acknowledgments
 
 - This work was supported by [funding sources]
-- We thank the authors of [baseline methods] for making their code publicly available
+- We thank the authors of LLMDyG for making their code publicly available
 - Built with [PyTorch](https://pytorch.org/) and [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/)
-- Dataset resources: [list relevant dataset sources]
 
 ## 📄 License
 
@@ -339,8 +331,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For questions or collaboration opportunities, please contact:
 
-- **Primary Author**: [Name] - [email@domain.com]
-- **Project Lead**: [Name] - [email@domain.com]
+- **Primary Author**: [haobing@tju.edu.cn]
+- **Project Lead**: [ruijiew@buaa.edu.cn]
 
 You can also:
 - Open an issue on [GitHub Issues](https://github.com/Wjerry5/LLMTM/issues)
@@ -348,4 +340,3 @@ You can also:
 
 ---
 
-**Note**: This is a template README. Please update the placeholders (marked with `[...]` or `*[...]*`) with your actual project information, results, and links.
