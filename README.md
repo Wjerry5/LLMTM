@@ -30,13 +30,11 @@ Official PyTorch implementation of **"LLMTM: Benchmarking and Optimizing LLMs fo
 
 ## 📝 Abstract
 
-*[Include a brief abstract of your paper here, typically 150-250 words summarizing the problem, approach, and key findings.]*
+The widespread application of Large Language Models (LLMs) has motivated a growing interest in their capacity for processing dynamic graphs. Temporal motifs, as an elementary unit and important local property of dynamic graphs which can directly reflect anomalies and unique phenomena, are essential for understanding their evolutionary dynamics and structural features. However, leveraging LLMs for temporal motif analysis on dynamic graphs remains relatively unexplored. In this paper, we systematically study LLM performance on temporal motif-related tasks. Specifically, we propose a comprehensive benchmark, LLMTM (Large Language Models in Temporal Motifs), which includes six tailored tasks across nine temporal motif types. We then conduct extensive experiments to analyze the impacts of different prompting techniques and LLMs (including nine models: openPangu-7B, the DeepSeek-R1-Distill-Qwen series, Qwen2.5-32B-Instruct, GPT-4o-mini, DeepSeek-R1, and o3) on model performance. Informed by our benchmark findings, we develop a tool-augmented LLM agent that leverages precisely engineered prompts to solve these tasks with high accuracy. Nevertheless, the high accuracy of the agent incurs a substantial cost. To address this trade-off, we propose a simple yet effective structure-aware dispatcher that considers both the dynamic graph's structural properties and the LLM's cognitive load to intelligently dispatch queries between the standard LLM prompting and the more powerful agent. Our experiments demonstrate that the structure-aware dispatcher effectively maintains high accuracy while reducing cost.
 
-Large Language Models (LLMs) have shown remarkable capabilities in various domains, but their application to temporal motif analysis in dynamic graphs remains underexplored. This work introduces LLMTM, a comprehensive benchmark and optimization framework for evaluating and enhancing LLM performance on temporal graph analysis tasks...
+The arXiv link to the extended version with appendix: https://arxiv.org/abs/2512.22266
 
 ## 🏗️ Architecture
-
-*[Include a high-level architecture diagram or description of your model]*
 
 The LLMTM framework consists of:
 - **Temporal Graph Encoder**: Processes dynamic graph structures
